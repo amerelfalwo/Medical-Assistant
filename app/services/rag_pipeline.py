@@ -8,14 +8,14 @@ from app.services.vectorstore import get_vectorstore
 from app.services.memory_manager import get_session_history
 from app.core.config import settings
 
-def get_conversational_rag():
+def get_conversational_rag(session_id: str):
     llm = ChatGroq(
         groq_api_key=settings.GROQ_API_KEY,
         model_name="llama3-70b-8192",
         temperature=0.0
     )
     
-    vectorstore = get_vectorstore()
+    vectorstore = get_vectorstore(namespace=session_id)
     base_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
     
     # Advanced Retrieval: Multi-Query
@@ -43,20 +43,19 @@ def get_conversational_rag():
     
     # Main QA Prompt
     qa_system_prompt = """
-    You are **MediBot**, an AI-powered assistant trained to help users understand medical documents and health-related questions.
+    You are an **Expert Research & Document Assistant**.
     
-    Your job is to provide clear, accurate, and helpful responses based **only on the provided context**.
+    Your job is to deeply analyze the provided document context and accurately perform tasks such as answering questions or generating comprehensive articles.
     
     ---
     Context:
     {context}
     ---
     Instructions:
-    - Respond in a calm, factual, and respectful tone.
-    - Use simple explanations when needed.
-    - If the context does not contain the answer, say: "I'm sorry, but I couldn't find relevant information in the provided documents."
-    - Do NOT make up facts.
-    - Do NOT give medical advice or diagnoses.
+    - Base your responses **only** on the provided context above. 
+    - If the user asks a direct question, provide a precise and accurate answer.
+    - If the user asks you to write an article or a summary, act as an "Expert Writer". Generate a well-structured article using Markdown headings (e.g., #, ##), bullet points, and highly coherent paragraphs based upon the context.
+    - If the context does not contain the information required to safely or fully address the prompt, you MUST clearly apologize and state logically what information is missing from the uploaded documents. Do NOT hallucinate.
     """
     
     qa_prompt = ChatPromptTemplate.from_messages([

@@ -2,7 +2,7 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Medical Assistant API"
+    PROJECT_NAME: str = "Chat Assistant API"
     VERSION: str = "1.0.0"
     
     # API Keys

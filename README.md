@@ -1,34 +1,38 @@
+---
+# 🤖 Chat Assistant API (RAG-based)
+
+**Chat Assistant** is an advanced AI system designed to assist users in interacting with, researching, and generating articles from their uploaded documents. By leveraging **Retrieval-Augmented Generation (RAG)**, the application combines the power of modern LLMs with dynamic document analysis.
 
 ---
-
-# 🩺 ThyraX: AI Medical Assistant Chatbot (RAG-based)
-
-**ThyraX** is an advanced medical AI system designed to assist radiologists and clinicians in detecting and analyzing **Thyroid Cancer**. By leveraging **Retrieval-Augmented Generation (RAG)**, the application combines the power of Google's Gemini models with specialized medical metadata and ultrasound report analysis.
 
 ## 🚀 Key Features
 
 * **Intelligent Document Processing**: Automatically parses complex medical PDFs and ultrasound reports.
 * **Semantic Search**: Uses Google Generative AI Embeddings to understand medical terminology (e.g., Hypoechoic, Microcalcifications).
 * **Vector Memory**: Powered by **Pinecone**, allowing the chatbot to "remember" and reference clinical guidelines and past cases.
-* **High Accuracy**: Optimized with the latest `text-embedding-004` model for precise classification between benign and malignant nodules.
+* **High Accuracy**: Optimized with a modern Gemini/Embedding architecture for precise classification between benign and malignant nodules.
+
+---
 
 ## 🛠️ Tech Stack
 
-* **Language:** Python
+* **Language:** Python 3.12+
+* **Backend API:** FastAPI & Uvicorn
 * **LLM & Embeddings:** Google Gemini (Generative AI)
 * **Vector Database:** Pinecone (Serverless)
-* **Framework:** LangChain
+* **Framework:** LangChain 
 * **Data Processing:** PyPDF & Recursive Character Splitting
+* **Package Management:** UV
 
 ---
 
 ## 🏗️ Architecture Flow
 
-1. **Ingestion**: Clinical PDFs are uploaded and stored locally.
-2. **Chunking**: Documents are split into optimized medical context chunks.
-3. **Embedding**: Text is converted into 768-dimensional vectors using `GoogleGenerativeAIEmbeddings`.
-4. **Indexing**: Vectors are upserted into Pinecone with associated metadata.
-5. **Retrieval**: When a user asks a clinical question, the system retrieves the most relevant medical context to generate a grounded response.
+1. **Ingestion**: Clinical PDFs are uploaded via the `/upload` endpoint.
+2. **Chunking**: Documents are split into optimized context chunks via the backend.
+3. **Embedding**: Text is converted into vectors using `GoogleGenerativeAIEmbeddings`.
+4. **Indexing**: Vectors are upserted into Pinecone with associated metadata bound to a `session_id`.
+5. **Retrieval**: Sending a question and a `session_id` to the `/ask` endpoint retrieves the most relevant medical context to generate a mathematically grounded response.
 
 ---
 
@@ -36,48 +40,47 @@
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/amerelfalwo/MEDICAL ASSISTANT.git
-cd ThyraX
-
+git clone https://github.com/amerelfalwo/Chat-Assistant.git
+cd "Chat Assistant"
 ```
 
-
-2. **Install dependencies:**
+2. **Install dependencies using [uv](https://docs.astral.sh/uv/):**
 ```bash
-pip install -r requirements.txt
-
+uv sync
 ```
-
 
 3. **Set up environment variables:**
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory and configure the following keys:
 ```env
 GOOGLE_API_KEY=your_gemini_api_key
 PINECONE_API_KEY=your_pinecone_api_key
-
+GROQ_API_KEY=your_groq_api_key  # if applicable
 ```
 
-
-4. **Run the application:**
-```python
-python main.py
-
+4. **Run the Backend API:**
+```bash
+uv run main.py
 ```
-
-
+*The FastAPI backend will start on `http://127.0.0.1:8000`*
+*You can access the Swagger UI documentation at `http://127.0.0.1:8000/docs`*
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-├── upload_pdfs/          # Storage for uploaded medical reports
-├── main.py               # Main application logic
-├── .env                  # Environment variables (ignored by git)
-├── requirements.txt      # Project dependencies
+├── app/                  # FastAPI Backend Core Logic
+│   ├── api/              # Endpoints for chat & PDF uploading
+│   ├── core/             # Configuration and environment setup
+│   └── services/         # Vectorstore, memory mgmt, and RAG pipelines
+├── upload_pdfs/          # Local staging for uploaded medical reports
+├── DATA/                 # Directory containing default guidelines and materials
+├── main.py               # Application engine (Backend entrypoint)
+├── pyproject.toml        # Application dependencies and package resolution
 └── README.md             # Project documentation
-
 ```
+
+---
 
 ## 🛡️ Medical Disclaimer
 
@@ -86,5 +89,3 @@ python main.py
 ---
 
 **Developed with ❤️ for the Graduation Project 2026.**
-
----

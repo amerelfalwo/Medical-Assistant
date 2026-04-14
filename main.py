@@ -7,7 +7,7 @@ from app.core.config import settings
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="A FastAPI production-ready Medical Assistant with LangChain Memory and Advanced Retrieval"
+    description="A FastAPI production-ready Chat Assistant API with document RAG capabilities"
 )
 
 app.add_middleware(
@@ -22,7 +22,7 @@ app.include_router(api_router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Medical Assistant API"}
+    return {"message": "Welcome to the Chat Assistant API"}
 
 def main():
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

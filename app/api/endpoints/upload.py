@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from typing import List
 from pathlib import Path
@@ -16,10 +16,10 @@ UPLOAD_DIR = "./upload_pdfs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/upload")
-async def upload_pdfs(files: List[UploadFile] = File(...)):
+async def upload_pdfs(files: List[UploadFile] = File(...), session_id: str = Form(...)):
     try:
-        logger.info(f"Received {len(files)} uploaded files")
-        vectorstore = get_vectorstore()
+        logger.info(f"Received {len(files)} uploaded files for session {session_id}")
+        vectorstore = get_vectorstore(namespace=session_id)
         
         for file in files:
             save_path = Path(UPLOAD_DIR) / file.filename
@@ -35,7 +35,7 @@ async def upload_pdfs(files: List[UploadFile] = File(...)):
             loader = PyPDFLoader(str(save_path))
             documents = loader.load()
             
-            splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+            splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
             chunks = splitter.split_documents(documents)
             
             # Add metadata if needed to track source

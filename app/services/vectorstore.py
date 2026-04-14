@@ -24,11 +24,12 @@ def init_pinecone_index():
         while not pc.describe_index(settings.PINECONE_INDEX_NAME).status["ready"]:
             time.sleep(1)
 
-def get_vectorstore():
+def get_vectorstore(namespace: str = None):
     # Make sure index exists (optional, could be done once on startup)
     init_pinecone_index()
     return PineconeVectorStore(
         index_name=settings.PINECONE_INDEX_NAME,
         embedding=get_embeddings(),
-        pinecone_api_key=settings.PINECONE_API_KEY
+        pinecone_api_key=settings.PINECONE_API_KEY,
+        namespace=namespace
     )

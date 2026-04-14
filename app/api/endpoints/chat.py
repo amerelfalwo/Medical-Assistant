@@ -9,14 +9,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Keep rag chain cached in memory or initialize lazily
-rag_chain_instance = None
+# Keep rag chains cached in memory per session
+rag_chains = {}
 
-def get_chain():
-    global rag_chain_instance
-    if rag_chain_instance is None:
-        rag_chain_instance = get_conversational_rag()
-    return rag_chain_instance
+def get_chain(session_id: str):
+    if session_id not in rag_chains:
+        rag_chains[session_id] = get_conversational_rag(session_id)
+    return rag_chains[session_id]
 
 class ChatRequest(BaseModel):
     session_id: str
@@ -27,7 +26,7 @@ async def ask_question(request: ChatRequest):
     try:
         logger.info(f"User query: {request.question} in session: {request.session_id}")
         
-        chain = get_chain()
+        chain = get_chain(request.session_id)
         
         response = chain.invoke(
             {"input": request.question},
