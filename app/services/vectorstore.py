@@ -4,8 +4,10 @@ from pinecone import Pinecone, ServerlessSpec
 from app.core.config import settings
 from functools import lru_cache
 from threading import Lock
+import logging
 import time
 
+logger = logging.getLogger(__name__)
 _index_initialized = False
 _index_init_lock = Lock()
 EMBEDDING_MODEL = "models/embedding-001"
@@ -33,11 +35,14 @@ def init_pinecone_index():
         elif names_attr is not None:
             existing_indexes = set(names_attr)
         else:
-            existing_indexes = {
-                idx["name"] if isinstance(idx, dict) else getattr(idx, "name", None)
-                for idx in listed_indexes
-            }
-            existing_indexes.discard(None)
+            existing_indexes = set()
+            for idx in listed_indexes:
+                if isinstance(idx, dict) and idx.get("name"):
+                    existing_indexes.add(idx["name"])
+                elif getattr(idx, "name", None):
+                    existing_indexes.add(idx.name)
+                else:
+                    logger.warning("Unexpected Pinecone index entry format: %r", idx)
         
         if settings.PINECONE_INDEX_NAME not in existing_indexes:
             pc.create_index(
