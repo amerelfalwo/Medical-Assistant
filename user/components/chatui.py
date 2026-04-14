@@ -21,7 +21,7 @@ def render_chat():
         response=ask_question(user_input)
         if response.status_code==200:
             data=response.json()
-            answer=data["response"]
+            answer=data["answer"]
             sources=data.get("sources",[])
             st.chat_message("assistant").markdown(answer)
             # if sources:
