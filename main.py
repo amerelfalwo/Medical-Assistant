@@ -1,6 +1,13 @@
-import uvicorn
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+try:
+    import uvicorn
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        f"Missing dependency '{exc.name}'. Install dependencies with "
+        "`uv sync` or `python -m pip install -e .` before running the app."
+    ) from exc
+
 from app.api.router import api_router
 from app.core.config import settings
 
